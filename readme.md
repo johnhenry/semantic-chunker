@@ -132,7 +132,7 @@ you will need to obtain a [read-access token from Hugging Face](https://huggingf
 export HF_ACCESS_TOKEN=<your_access_token>
 ```
 
-Upon first run, it will take a while to download the model, but subsequent runs will be much faster.
+Upon first run, it will take a while to download the model [`Supabase/gte-small` model](https://huggingface.co/Supabase/gte-small), but subsequent runs will be much faster.
 
 ### Example: External API Call
 

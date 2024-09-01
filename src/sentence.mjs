@@ -1,5 +1,6 @@
 import compromise from "compromise";
 import splitter from "./utility/splitter.mjs";
+import { nullEmbed } from "./utility/null-embed.mjs";
 
 /**
  * @typedef {import("../types/types").Chunker} Chunker
@@ -12,7 +13,10 @@ import splitter from "./utility/splitter.mjs";
  * @param {number} [options.split=0]
  * @returns {Chunker}
  */
-export const createSentenceChunker = ({ embed, split = 0 } = {}) => {
+export const createSentenceChunker = ({
+  embed = nullEmbed,
+  split = 0,
+} = {}) => {
   return async function* (text) {
     const doc = compromise(text);
     const sentences = doc.sentences().out("array");

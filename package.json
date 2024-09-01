@@ -5,8 +5,10 @@
   "main": "index.mjs",
   "type": "module",
   "scripts": {
-    "demo": "node --env-file=.env.local demo.mjs",
-    "test": "node --env-file=.env.local test.mjs"
+    "demo": "node demo.mjs",
+    "test": "node test.mjs",
+    "demo:load": "node --env-file=.env.local demo.mjs",
+    "test:load": "node --env-file=.env.local test.mjs"
   },
   "exports": {
     ".": "./index.mjs"
@@ -15,8 +17,12 @@
   "keywords": [
     "semantic",
     "chunking",
+    "cnunker",
+    "sentence",
     "nlp",
-    "text-processing"
+    "text-processing",
+    "llm",
+    "embedding"
   ],
   "author": "John Henry <john@iamjohnhenry.com>",
   "license": "MIT",

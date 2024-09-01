@@ -7,8 +7,9 @@
  * The `embed` function then calls the `instance` with the given `text` and returns an array of features.
  */
 import { pipeline, env } from "@xenova/transformers";
+const MODEL_NAME = "Supabase/gte-small";
 env.HF_ACCESS_TOKEN = process.env.HF_ACCESS_TOKEN;
-const instance = await pipeline("feature-extraction", "Supabase/gte-small");
+const instance = await pipeline("feature-extraction", MODEL_NAME);
 export const embed = async (text) => {
   const { data } = await instance(text);
   return Array.from(data);

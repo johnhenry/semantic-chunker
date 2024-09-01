@@ -1,6 +1,7 @@
 import createSentenceChunker from "./sentence.mjs";
 import cosineSimilarity from "./utility/cosine-similarity.mjs";
 import findSignificantDropoffs from "./utility/find-significant-dropoffs.mjs";
+import { nullEmbed } from "./utility/null-embed.mjs";
 
 /**
  * @typedef {import("../types/types").Chunker} Chunker
@@ -48,7 +49,7 @@ const createChunker = async function* (corpus, embed, zScoreThreshold = 2) {
  * @returns {Chunker}
  */
 export const createSemanticChunker = ({
-  embed,
+  embed = nullEmbed,
   split = 0,
   zScoreThreshold = 2,
 } = {}) => {
