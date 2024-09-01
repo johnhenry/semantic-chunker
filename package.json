@@ -1,0 +1,15 @@
+{
+  "name": "semantic-chunker",
+  "version": "0.0.0",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "node --test test.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "compromise": "^14.14.0"
+  }
+}
