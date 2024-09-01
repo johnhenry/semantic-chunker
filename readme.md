@@ -17,7 +17,13 @@ Semantic Chunker is a versatile library for dividing text into semantically mean
     - [`semantic(options)`](#semanticoptions)
     - [`sentence(options)`](#sentenceoptions)
     - [`full(options)`](#fulloptions)
+  - [Embedding Functions](#embedding-functions)
+    - [Example: Local Example](#example-local-example)
+    - [Example: External API Call](#example-external-api-call)
   - [Contributing](#contributing)
+  - [Changelog](#changelog)
+    - [\[0.0.0\]](#000)
+      - [Added](#added)
   - [License](#license)
 
 ## Installation
@@ -32,7 +38,7 @@ npm install semantic-chunker
 
 - Flexible chunking based on semantic meaning
 - Support for custom embedding functions
-- Multiple chunking strategies: semantic, and sentence-based, full
+- Multiple chunking strategies: semantic, sentence-based, and full
 - Adjustable parameters for fine-tuning chunk sizes and thresholds
 
 ## Usage
@@ -105,9 +111,53 @@ Creates a full chunker.
 
 - `options.embed`: Function that takes a string and returns a vector (required)
 
+## Embedding Functions
+
+For better or for worse, you'll need to supply your own embedding function with the following signature:
+
+```typescript
+type Embed = (text: string) => Promise<number[]>;
+```
+
+We provide two examples that should cover most use cases:
+
+### Example: Local Example
+
+In `/embed/xenova.mjs` we provide an example where we create an embedding function using a local transformer model.
+
+For this example to work, in addition to the [`@xenova/transformers` npm package](https://www.npmjs.com/package/@xenova/transformers),
+you will need to obtain a [read-access token from Hugging Face](https://huggingface.co/settings/tokens) and set it to the `HF_ACCESS_TOKEN` environment variable.
+
+```bash
+export HF_ACCESS_TOKEN=<your_access_token>
+```
+
+Upon first run, it will take a while to download the model, but subsequent runs will be much faster.
+
+### Example: External API Call
+
+In `/embed/ollama.mjs` there is an example where we create an embedding function using an external API call.
+
+For this example to work, in addition to the [`ollama` npm package](https://www.npmjs.com/package/ollama),
+you will need to install and run [ollama](https://ollama.com/)
+and pull the latest [`nomic-embed-text` model](https://ollama.com/library/nomic-embed-text).
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+## Changelog
+
+### [0.0.0]
+
+#### Added
+
+- Initial release of the semantic-chunker package
+- Semantic chunker for semantic text division
+- Sentence chunker for sentence-level text division
+- Full chunker for processing entire documents
+- README with usage examples and API documentation
+- Basic test suite
 
 ## License
 
