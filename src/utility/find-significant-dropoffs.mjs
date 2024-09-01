@@ -1,6 +1,13 @@
-import type { Dropoff } from "../../types/types";
+/**
+ * @typedef {import("../../types/types").Dropoff} Dropoff
+ */
 
-const findSignificantDropoffs = (dropoffs: Dropoff[], zScoreThreshold = 2) => {
+/**
+ * @param {Dropoff[]} dropoffs
+ * @param {number} [zScoreThreshold=2]
+ * @returns {number[]}
+ */
+const findSignificantDropoffs = (dropoffs, zScoreThreshold = 2) => {
   const mean =
     dropoffs.reduce((sum, d) => sum + d.dropoff, 0) / dropoffs.length;
   const stdDev = Math.sqrt(
@@ -18,7 +25,7 @@ const findSignificantDropoffs = (dropoffs: Dropoff[], zScoreThreshold = 2) => {
 // JavaScript version using TensorFlow.js
 // import * as tf from "@tensorflow/tfjs";
 
-// const findSignificantDropoffs = (dropoffs: Dropoff[], zScoreThreshold = 2) => {
+// const findSignificantDropoffs = (dropoffs, zScoreThreshold = 2) => {
 //   const dropoffValues = dropoffs.map((d) => d.dropoff);
 //   const dropoffTensor = tf.tensor1d(dropoffValues);
 
@@ -39,4 +46,5 @@ const findSignificantDropoffs = (dropoffs: Dropoff[], zScoreThreshold = 2) => {
 //     ) => a - b)
 //   );
 // };
+
 export default findSignificantDropoffs;
