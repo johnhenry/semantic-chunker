@@ -40,7 +40,7 @@ for (const document of documents) {
   log("<details><summary>Sentence Breakdown (Click to expand)</summary>");
   log("");
   for await (const [text] of chunker(document)) {
-    log(`- ${text}`);
+    log(` 1. ${text}`);
   }
   log("</details>");
 
@@ -59,8 +59,8 @@ for (const document of documents) {
       );
       log("");
       for await (const [text] of chunker(document)) {
-        log("```diff");
-        log(`+ ${text}`);
+        log("```");
+        log(`${text}`);
         log("```");
       }
       log("</details>");

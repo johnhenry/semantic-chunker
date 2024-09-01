@@ -23,6 +23,7 @@ Semantic Chunker is a versatile library for dividing text into semantically mean
   - [Demo](#demo)
   - [Contributing](#contributing)
   - [Changelog](#changelog)
+    - [\[0.0.1\]](#001)
     - [\[0.0.0\]](#000)
       - [Added](#added)
   - [License](#license)
@@ -97,20 +98,21 @@ Creates a semantic chunker.
 
 - `options.embed`: Function that takes a string and returns a vector (required)
 - `options.zScoreThreshold`: Number that determines the threshold for creating new chunks (default: 1)
-- `options.split`: Function to split text into initial segments (optional)
+- `options.split`: Force a splt after this many characters (optional)
 
 ### `sentence(options)`
 
 Creates a sentence chunker.
 
 - `options.embed`: Function that takes a string and returns a vector (required)
-- `options.split`: Function to split text into sentences (optional)
+- `options.split`: Force a splt after this many characters (optional)
 
 ### `full(options)`
 
 Creates a full chunker.
 
 - `options.embed`: Function that takes a string and returns a vector (required)
+- `options.split`: Force a splt after this many characters (optional)
 
 ## Embedding Functions
 
@@ -151,13 +153,19 @@ Run a demo with the following command:
 node --run demo
 ```
 
-Results in [`demo-results.md`](demo-results.md).
+Results in [`./docs/demo-results.md`](./docs/demo-results.md).
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
+
+### [0.0.1]
+
+- Demo is more robust and outputs markdown
+- Fix documentation for `options.split`
+- Add options.split to ful chunker
 
 ### [0.0.0]
 
