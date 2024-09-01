@@ -10,10 +10,10 @@ const { log } = console;
 
 const documents = [DOC_PIGS, DOC_LBJ, DOC_INTERWOVEN];
 const embeds = [embedXenova, embedOllama];
-const zScoreThresholds = [0.5, 1, 1.5, 2];
+const zScoreThresholds = [0.5, 1, 1.5, 2, 2.5];
 let index = 1;
 
-console.log("# 🚀 Chunking Demo Extravaganza 🎈");
+console.log("# Semantic Chunker Demo");
 
 for (const document of documents) {
   const documentName =
@@ -26,34 +26,36 @@ for (const document of documents) {
   let chunker = full();
   log(`## 📚 Document ${index++} : ${documentName}`);
   log("");
-  log("<details><summary>Full Text (Click to expand)</summary>");
-  log("");
-  for await (const [text] of chunker(document)) {
-    log(`>${text}`);
-    log("");
-  }
-  log("</details>");
 
+  log("Full Text:");
+  log("");
+  log("```");
+  for await (const [text] of chunker(document)) {
+    log(`${text}`);
+  }
+  log("```");
   chunker = sentence();
-  log(`### 🔪 Sentences`);
+  log(`### Sentences`);
   log("");
   log("<details><summary>Sentence Breakdown (Click to expand)</summary>");
   log("");
   for await (const [text] of chunker(document)) {
-    log(` 1. ${text}`);
+    log(` 1. > ${text}`);
   }
   log("</details>");
 
   log("");
-  log(`### 🧠 Semantic Chunks`);
+  log(`### Semantic Chunks`);
   for (const embed of embeds) {
     const embeddingName =
       embed === embedXenova
-        ? "Xenova Transformers + Supabase/gte-small 🦾"
-        : "Ollama + nomic 🦙";
-    log(`#### 🔬 Embedding Method: ${embeddingName}`);
+        ? "Xenova Transformers + Supabase/gte-small"
+        : "Ollama + nomic";
+    log(`#### Embedding Method: ${embeddingName}`);
+
     for (const zScoreThreshold of zScoreThresholds) {
       const chunker = semantic({ embed, zScoreThreshold });
+      let chunks = 0;
       log(
         `<details><summary>Z-Score Threshold: ${zScoreThreshold} 📊</summary>`
       );
@@ -62,8 +64,10 @@ for (const document of documents) {
         log("```");
         log(`${text}`);
         log("```");
+        chunks++;
       }
       log("</details>");
+      log(`Total Chunks: ${chunks}`);
       log("");
     }
   }
