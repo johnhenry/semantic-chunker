@@ -23,6 +23,7 @@ Semantic Chunker is a versatile library for dividing text into semantically mean
   - [Demo](#demo)
   - [Contributing](#contributing)
   - [Changelog](#changelog)
+    - [\[0.0.2\]](#002)
     - [\[0.0.1\]](#001)
     - [\[0.0.0\]](#000)
       - [Added](#added)
@@ -161,6 +162,10 @@ Results in [`./docs/demo-results.md`](./docs/demo-results.md).
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
+
+### [0.0.2]
+
+- Demo fixed minor issues with demo and docs
 
 ### [0.0.1]
 
