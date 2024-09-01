@@ -97,7 +97,8 @@ const chunker = full({ embed });
 Creates a semantic chunker.
 
 - `options.embed`: Function that takes a string and returns a vector (required)
-- `options.zScoreThreshold`: Number that determines the threshold for creating new chunks (default: 1)
+- `options.zScoreThreshold`: Number that determines the threshold for creating new chunks (default: 2).
+  - You will need to experiment with this value to get the best results.
 - `options.split`: Force a splt after this many characters (optional)
 
 ### `sentence(options)`
