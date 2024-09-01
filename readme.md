@@ -20,6 +20,7 @@ Semantic Chunker is a versatile library for dividing text into semantically mean
   - [Embedding Functions](#embedding-functions)
     - [Example: Local Example](#example-local-example)
     - [Example: External API Call](#example-external-api-call)
+  - [Demo](#demo)
   - [Contributing](#contributing)
   - [Changelog](#changelog)
     - [\[0.0.0\]](#000)
@@ -141,6 +142,16 @@ In `/embed/ollama.mjs` there is an example where we create an embedding function
 For this example to work, in addition to the [`ollama` npm package](https://www.npmjs.com/package/ollama),
 you will need to install and run [ollama](https://ollama.com/)
 and pull the latest [`nomic-embed-text` model](https://ollama.com/library/nomic-embed-text).
+
+## Demo
+
+Run a demo with the following command:
+
+```bash
+node --run demo
+```
+
+Results in [`demo-results.md`](demo-results.md).
 
 ## Contributing
 
