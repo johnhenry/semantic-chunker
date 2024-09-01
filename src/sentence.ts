@@ -21,7 +21,7 @@ export const createSentenceChunker = ({
       }
     } else {
       for (const sentence of sentences) {
-        yield sentence;
+        yield [sentence, await embed!(sentence)];
       }
     }
   };

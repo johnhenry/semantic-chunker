@@ -7,11 +7,12 @@ const findSignificantDropoffs = (dropoffs: Dropoff[], zScoreThreshold = 2) => {
     dropoffs.reduce((sum, d) => sum + Math.pow(d.dropoff - mean, 2), 0) /
       dropoffs.length
   );
-
-  return dropoffs
+  const offs = dropoffs
     .filter((d) => (d.dropoff - mean) / stdDev > zScoreThreshold)
     .map((d) => d.index)
     .sort((a, b) => a - b);
+
+  return offs;
 };
 
 // JavaScript version using TensorFlow.js
