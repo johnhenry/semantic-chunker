@@ -66,8 +66,7 @@ for (const document of documents) {
         log("```");
         chunks++;
       }
-      log("</details>");
-      log(`Total Chunks: ${chunks}`);
+      log(`</details> Total Chunks: ${chunks}`);
       log("");
     }
   }
