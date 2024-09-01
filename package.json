@@ -1,6 +1,6 @@
 {
   "name": "semantic-chunker",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A tool for semantic chunking of text",
   "main": "index.mjs",
   "type": "module",
