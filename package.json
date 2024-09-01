@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "main": "index.mjs",
   "scripts": {
-    "test": "node --env-file=.env.local test.mjs"
+    "demo": "node --env-file=.env.local demo.mjs"
   },
   "exports": {
     ".": "./index.mjs"
