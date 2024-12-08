@@ -4,10 +4,11 @@
 
 /**
  * @param {Dropoff[]} dropoffs
+ * @param {descriptions} Find statistically significant dropoffs in a list of dropoffs based on z-scores
  * @param {number} [zScoreThreshold=2]
  * @returns {number[]}
  */
-const findSignificantDropoffs = (dropoffs, zScoreThreshold = 2) => {
+const findSignificantDropoffsSD = (dropoffs, zScoreThreshold = 2) => {
   const mean =
     dropoffs.reduce((sum, d) => sum + d.dropoff, 0) / dropoffs.length;
   const stdDev = Math.sqrt(
@@ -22,29 +23,27 @@ const findSignificantDropoffs = (dropoffs, zScoreThreshold = 2) => {
   return offs;
 };
 
-// JavaScript version using TensorFlow.js
-// import * as tf from "@tensorflow/tfjs";
+/**
+ * @param {Dropoff[]} dropoffs
+ * @param {descriptions} Find statistically significant dropoffs in a list of dropoffs based on interquartile range (IQR)
+ * @param {number} [iqrMultiplier=1.5]
+ * @returns {number[]}
+ */
+const findSignificantDropoffsIQ = (dropoffs, iqrMultiplier = 1.5) => {
+  const sortedDropoffs = dropoffs.map((d) => d.dropoff).sort((a, b) => a - b);
+  const q1 = sortedDropoffs[Math.floor(sortedDropoffs.length / 4)];
+  const q3 = sortedDropoffs[Math.floor((sortedDropoffs.length * 3) / 4)];
+  const iqr = q3 - q1;
+  const lowerBound = q1 - iqrMultiplier * iqr;
+  const upperBound = q3 + iqrMultiplier * iqr;
 
-// const findSignificantDropoffs = (dropoffs, zScoreThreshold = 2) => {
-//   const dropoffValues = dropoffs.map((d) => d.dropoff);
-//   const dropoffTensor = tf.tensor1d(dropoffValues);
+  const offs = dropoffs
+    .filter((d) => d.dropoff < lowerBound || d.dropoff > upperBound)
+    .map((d) => d.index)
+    .sort((a, b) => a - b);
 
-//   const mean = tf.mean(dropoffTensor);
-//   const stdDev = tf.sqrt(tf.mean(tf.square(tf.sub(dropoffTensor, mean))));
+  return offs;
+};
 
-//   const zScores = tf.div(tf.sub(dropoffTensor, mean), stdDev);
-//   const significantMask = tf.greater(zScores, zScoreThreshold);
-
-//   const significantIndices = tf.whereAsync(significantMask);
-
-//   return significantIndices.then((indicies) => indicies.array()).then((
-//     indices,
-//   ) =>
-//     indices.map(([index]) => dropoffs[index].index).sort((
-//       a,
-//       b,
-//     ) => a - b)
-//   );
-// };
-
+export { findSignificantDropoffsSD, findSignificantDropoffsIQ };
 export default findSignificantDropoffs;
