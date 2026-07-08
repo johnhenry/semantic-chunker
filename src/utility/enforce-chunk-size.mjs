@@ -11,7 +11,7 @@
  * @returns {Array<[number, number]>}
  */
 const segmentsFrom = (boundaries, length) => {
-  const segments = [];
+  const segments = /** @type {Array<[number, number]>} */ ([]);
   let start = 0;
   for (const end of [...boundaries, length]) {
     segments.push([start, end]);
@@ -45,7 +45,10 @@ const enforceChunkSize = (
   { maxChunkSize = 0, minChunkSize = 0 } = {}
 ) => {
   const dropoffAt = new Map(dropoffs.map((d) => [d.index, d.dropoff]));
-  const textLength = (start, end) =>
+  const textLength = (
+    /** @type {number} */ start,
+    /** @type {number} */ end
+  ) =>
     corpus
       .slice(start, end)
       .map((c) => c[0])

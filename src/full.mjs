@@ -3,15 +3,20 @@ import splitter from "./utility/splitter.mjs";
 
 /**
  * @typedef {import("../types/types").Chunker} Chunker
+ * @typedef {import("../types/types").EmbedFunction} EmbedFunction
  */
 
 /**
- * @param {Object} options
- * @param {function} [options.embed=nullEmbed]
+ * Creates a chunker that embeds the whole text as a single chunk, or as
+ * fixed-size slices when `split` is set.
+ *
+ * @param {Object} [options]
+ * @param {EmbedFunction} [options.embed=nullEmbed]
+ * @param {number} [options.split=0] - Maximum slice length in characters (0 disables slicing).
  * @returns {Chunker}
  */
 export const createDefaultChunker = ({ embed = nullEmbed, split = 0 } = {}) => {
-  return async function* (text) {
+  return async function* (/** @type {string} */ text) {
     if (split) {
       for await (const chunk of splitter(text, split)) {
         yield [chunk, await embed(chunk)];

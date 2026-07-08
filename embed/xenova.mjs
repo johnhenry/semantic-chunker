@@ -8,9 +8,9 @@
  */
 import { pipeline, env } from "@xenova/transformers";
 const MODEL_NAME = "Supabase/gte-small";
-env.HF_ACCESS_TOKEN = process.env.HF_ACCESS_TOKEN;
+/** @type {any} */ (env).HF_ACCESS_TOKEN = process.env.HF_ACCESS_TOKEN;
 const instance = await pipeline("feature-extraction", MODEL_NAME);
-export const embed = async (text) => {
+export const embed = async (/** @type {string} */ text) => {
   const { data } = await instance(text);
   return Array.from(data);
 };

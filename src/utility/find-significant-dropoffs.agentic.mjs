@@ -26,19 +26,22 @@ const findSignificantDropoffsAgentic = async (
   { model = "Xenova/all-MiniLM-L6-v2", threshold = 0.5, windowSize = 2 } = {}
 ) => {
   const size = Math.max(2, windowSize);
-  if (dropoffs.some((d) => typeof d.text !== "string")) {
-    throw new Error(
-      'The "Agentic" method requires each dropoff to include the segment text'
-    );
-  }
+  const texts = dropoffs.map((d) => {
+    if (typeof d.text !== "string") {
+      throw new Error(
+        'The "Agentic" method requires each dropoff to include the segment text'
+      );
+    }
+    return d.text;
+  });
 
   const { pipeline } = await import("@huggingface/transformers");
   const featureExtractor = await pipeline("feature-extraction", model);
 
   // Embed each segment once; tensors are mean-pooled into plain vectors.
   const embeddings = [];
-  for (const d of dropoffs) {
-    const tensor = await featureExtractor(d.text, {
+  for (const text of texts) {
+    const tensor = await featureExtractor(text, {
       pooling: "mean",
       normalize: true,
     });

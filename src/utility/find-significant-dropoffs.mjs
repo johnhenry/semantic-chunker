@@ -186,6 +186,7 @@ const findSignificantDropoffsCUSUM = (dropoffs, threshold = 5) => {
   let cusum = 0;
   const mean =
     dropoffs.reduce((sum, d) => sum + d.dropoff, 0) / dropoffs.length;
+  /** @type {number[]} */
   const offs = [];
 
   dropoffs.forEach((d, i) => {

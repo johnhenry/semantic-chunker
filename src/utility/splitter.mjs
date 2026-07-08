@@ -29,6 +29,7 @@ export const splitter = function* (text, split = 2 ** 8) {
  * @returns {string[]}
  */
 const segmentMarkdown = (text) => {
+  /** @type {string[]} */
   const segments = [];
   /** @type {string[]} */
   let current = [];

@@ -8,7 +8,7 @@ const MODEL_NAME = "nomic-embed-text:latest";
 const ollama = new Ollama({
   host: "http://localhost:11434",
 });
-export const embed = async (prompt) => {
+export const embed = async (/** @type {string} */ prompt) => {
   const { embedding } = await ollama.embeddings({
     model: MODEL_NAME,
     prompt,

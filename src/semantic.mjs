@@ -110,7 +110,7 @@ export const createSemanticChunker = ({
   const resolvedOptions =
     method === "SD" ? { zScoreThreshold, ...methodOptions } : methodOptions;
   const sentenceChunker = createSentenceChunker({ embed, split, splitMode });
-  return async function* (text) {
+  return async function* (/** @type {string} */ text) {
     const newCorpus = [];
     // First Pass: Chunk into sentences
     for await (const chunk of sentenceChunker(text)) {

@@ -22,7 +22,7 @@ export const createSentenceChunker = ({
   split = 0,
   splitMode = "sentence",
 } = {}) => {
-  return async function* (text) {
+  return async function* (/** @type {string} */ text) {
     const segments = segment(text, splitMode);
     if (split) {
       for (const item of segments) {
