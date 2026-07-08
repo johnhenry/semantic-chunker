@@ -69,10 +69,11 @@ const findSignificantDropoffsIQ = (dropoffs, iqrMultiplier = 1.5) => {
  * @returns {number[]} - An array of indices where significant dropoffs occur.
  */
 const findSignificantDropoffsMAD = (dropoffs, madMultiplier = 3) => {
-  const median = sortedDropoffs[Math.floor(sortedDropoffs.length / 2)];
-  const mad = sortedDropoffs
-    .map((d) => Math.abs(d.dropoff - median))
-    .sort((a, b) => a - b)[Math.floor(sortedDropoffs.length / 2)];
+  const sortedValues = dropoffs.map((d) => d.dropoff).sort((a, b) => a - b);
+  const median = sortedValues[Math.floor(sortedValues.length / 2)];
+  const mad = sortedValues
+    .map((v) => Math.abs(v - median))
+    .sort((a, b) => a - b)[Math.floor(sortedValues.length / 2)];
   const lowerBound = median - madMultiplier * mad;
   const upperBound = median + madMultiplier * mad;
 

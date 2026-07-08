@@ -11,10 +11,32 @@ import {
   findSignificantDropoffsModifiedZScore,
 } from "./find-significant-dropoffs.mjs";
 
-const findSignificantDropoffs = (dropoffs, method = "SD", options = {}) => {
+/**
+ * @typedef {import("../../types/types").Dropoff} Dropoff
+ * @typedef {import("../../types/types").DropoffMethod} DropoffMethod
+ * @typedef {import("../../types/types").MethodOptions} MethodOptions
+ */
+
+/**
+ * Dispatches to a significant-dropoff detection method by name.
+ *
+ * The "Agentic" method is loaded lazily because it depends on the optional
+ * peer dependency `@huggingface/transformers`.
+ *
+ * @param {Dropoff[]} dropoffs - An array of dropoff objects containing dropoff values and their indices.
+ * @param {DropoffMethod} [method="SD"] - The detection method to use.
+ * @param {MethodOptions} [options={}] - Method-specific options.
+ * @returns {Promise<number[]>} - An array of indices where significant dropoffs occur.
+ * @throws {Error} If the method name is unknown.
+ */
+const findSignificantDropoffs = async (dropoffs, method = "SD", options = {}) => {
   switch (method) {
-    case "SD":
-      return findSignificantDropoffsSD(dropoffs, options.zScoreThreshold);
+    case "Agentic": {
+      const { default: findSignificantDropoffsAgentic } = await import(
+        "./find-significant-dropoffs.agentic.mjs"
+      );
+      return findSignificantDropoffsAgentic(dropoffs, options);
+    }
     case "IQ":
       return findSignificantDropoffsIQ(dropoffs, options.iqrMultiplier);
     case "MAD":
@@ -44,8 +66,11 @@ const findSignificantDropoffs = (dropoffs, method = "SD", options = {}) => {
       );
     case "ModifiedZScore":
       return findSignificantDropoffsModifiedZScore(dropoffs, options.threshold);
+    case "SD":
+      return findSignificantDropoffsSD(dropoffs, options.zScoreThreshold);
     default:
       throw new Error(`Unknown method: ${method}`);
   }
 };
+
 export default findSignificantDropoffs;

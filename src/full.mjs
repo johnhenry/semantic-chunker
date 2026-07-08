@@ -17,7 +17,7 @@ export const createDefaultChunker = ({ embed = nullEmbed, split = 0 } = {}) => {
         yield [chunk, await embed(chunk)];
       }
     } else {
-      yield [text, embed(text)];
+      yield [text, await embed(text)];
     }
   };
 };
