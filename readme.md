@@ -240,6 +240,9 @@ const chunker = semantic({
 > [!NOTE]
 > The `"Agentic"` method requires the optional peer dependency [`@huggingface/transformers`](https://www.npmjs.com/package/@huggingface/transformers) (`npm install @huggingface/transformers`). It is loaded lazily, so the rest of the library works without it.
 
+> [!WARNING]
+> Do not combine the `"Agentic"` method with the bundled `semantic-chunker/embed/xenova` adapter. The onnxruntime bindings shipped by `@xenova/transformers` (v2) and `@huggingface/transformers` (v3) conflict in the same process: once v3 has run inference, subsequent v2 inference hangs forever. When using `"Agentic"`, build your embedding function on `@huggingface/transformers` too (or use a non-onnx embedder such as Ollama).
+
 The raw detection functions are also exported for direct use:
 
 ```javascript
