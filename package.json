@@ -7,8 +7,8 @@
   "scripts": {
     "demo": "node demo.mjs",
     "demo:load": "node --env-file=.env.local demo.mjs",
-    "test": "node --test test/unit/",
-    "test:integration": "node --env-file=.env.local --test test/integration/",
+    "test": "node --test test/unit/*.test.mjs",
+    "test:integration": "node --env-file=.env.local --test test/integration/*.test.mjs",
     "typecheck": "tsc",
     "prepublishOnly": "npm test && npm run typecheck"
   },
