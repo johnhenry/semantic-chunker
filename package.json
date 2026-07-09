@@ -1,6 +1,6 @@
 {
   "name": "semantic-chunker",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A tool for semantic chunking of text",
   "main": "index.mjs",
   "type": "module",
@@ -13,9 +13,18 @@
     "prepublishOnly": "npm test && npm run typecheck"
   },
   "exports": {
-    ".": "./index.mjs",
-    "./embed/xenova": "./embed/xenova.mjs",
-    "./embed/ollama": "./embed/ollama.mjs"
+    ".": {
+      "types": "./types/types.d.ts",
+      "default": "./index.mjs"
+    },
+    "./embed/xenova": {
+      "types": "./types/embed-xenova.d.ts",
+      "default": "./embed/xenova.mjs"
+    },
+    "./embed/ollama": {
+      "types": "./types/embed-ollama.d.ts",
+      "default": "./embed/ollama.mjs"
+    }
   },
   "files": [
     "index.mjs",

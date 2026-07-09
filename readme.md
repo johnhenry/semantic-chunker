@@ -401,6 +401,10 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
 
+### [0.0.4]
+
+- Fixed: `package.json` `exports` map lacked a `types` condition, so TypeScript consumers using `moduleResolution: "NodeNext"` (or `"Node16"`) couldn't find the shipped type declarations ([#1](https://github.com/johnhenry/semantic-chunker/issues/1))
+
 ### [0.0.3]
 
 - Fixed: `MAD` detection method crashed with a `ReferenceError`; the full chunker yielded an unresolved Promise as the embedding; cosine similarity returned `NaN` for zero/empty vectors
