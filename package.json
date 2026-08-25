@@ -1,6 +1,6 @@
 {
-  "name": "semantic-chunker",
-  "version": "0.0.4",
+  "name": "@johnhenry/semantic-chunker",
+  "version": "0.0.0",
   "description": "A tool for semantic chunking of text",
   "main": "index.mjs",
   "type": "module",
@@ -49,7 +49,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/johnhenry/semantic-chunker.git"
+    "url": "git+https://github.com/johnhenry/semantic-chunker.git"
   },
   "dependencies": {
     "compromise": "^14.14.0"
@@ -79,5 +79,6 @@
   },
   "engines": {
     "node": ">=20.6.0"
-  }
+  },
+  "homepage": "https://opensource.johnhenry.me/semantic-chunker/"
 }

@@ -1,5 +1,9 @@
 # Semantic Chunker
 
+> Previously published as `semantic-chunker` (last release 0.0.4, now deprecated).
+> Renamed to `@johnhenry/semantic-chunker` and restarted at 0.0.0 on import into
+> the @johnhenry family — a new address and era, not a maturity signal.
+
 Semantic Chunker is a versatile library for dividing text into semantically meaningful chunks. It employs a BYOE (Bring Your Own Embedder) approach, allowing users to provide their own embedding function that maps text to a vector space.
 
 ## Table of Contents
@@ -40,7 +44,7 @@ Semantic Chunker is a versatile library for dividing text into semantically mean
 To install Semantic Chunker, use npm:
 
 ```bash
-npm install semantic-chunker
+npm install @johnhenry/semantic-chunker
 ```
 
 > [!IMPORTANT]
@@ -87,13 +91,13 @@ Here's a quick tutorial to get you started with Semantic Chunker:
 1. Install Semantic Chunker:
 
 ```bash
-npm install semantic-chunker
+npm install @johnhenry/semantic-chunker
 ```
 
 2. Create a simple script (e.g., `semantic_chunker_demo.mjs`):
 
 ```javascript
-import semantic from "semantic-chunker";
+import semantic from "@johnhenry/semantic-chunker";
 
 // Simple embedding function (for demonstration purposes)
 function simpleEmbed(text) {
@@ -131,7 +135,7 @@ You should see output showing the chunks of text along with their embeddings.
 The main chunker that divides text based on semantic meaning:
 
 ```javascript
-import semantic from "semantic-chunker";
+import semantic from "@johnhenry/semantic-chunker";
 
 const embed = // ... your embedding function
 const document = // ... your input text
@@ -150,7 +154,7 @@ for await (const [text, embedding] of chunker(document)) {
 Divides the text into sentence-level chunks:
 
 ```javascript
-import { sentence } from "semantic-chunker";
+import { sentence } from "@johnhenry/semantic-chunker";
 
 const embed = // ... your embedding function
 const chunker = sentence({ embed });
@@ -163,7 +167,7 @@ const chunker = sentence({ embed });
 Returns the entire document as a single chunk:
 
 ```javascript
-import { full } from "semantic-chunker";
+import { full } from "@johnhenry/semantic-chunker";
 
 const embed = // ... your embedding function
 const chunker = full({ embed });
@@ -246,7 +250,7 @@ const chunker = semantic({
 The raw detection functions are also exported for direct use:
 
 ```javascript
-import { dropoffMethods } from "semantic-chunker";
+import { dropoffMethods } from "@johnhenry/semantic-chunker";
 
 const boundaries = dropoffMethods.findSignificantDropoffsIQ(dropoffs, 1.5);
 ```
@@ -270,8 +274,8 @@ The flexibility of bringing your own embedder (BYOE) allows you to:
 Two ready-made adapters ship with the package as subpath imports. Each requires its optional peer dependency:
 
 ```javascript
-import { embed } from "semantic-chunker/embed/xenova"; // needs @xenova/transformers
-import { embed } from "semantic-chunker/embed/ollama"; // needs ollama
+import { embed } from "@johnhenry/semantic-chunker/embed/xenova"; // needs @xenova/transformers
+import { embed } from "@johnhenry/semantic-chunker/embed/ollama"; // needs ollama
 ```
 
 ### Example: Local Embedding
@@ -317,7 +321,7 @@ async function customEmbed(text) {
 2. Use your custom embedding function with Semantic Chunker:
 
 ```javascript
-import semantic from "semantic-chunker";
+import semantic from "@johnhenry/semantic-chunker";
 
 const chunker = semantic({ embed: customEmbed });
 
