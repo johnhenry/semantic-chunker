@@ -71,9 +71,10 @@ const findSignificantDropoffsIQ = (dropoffs, iqrMultiplier = 1.5) => {
 const findSignificantDropoffsMAD = (dropoffs, madMultiplier = 3) => {
   const sortedValues = dropoffs.map((d) => d.dropoff).sort((a, b) => a - b);
   const median = sortedValues[Math.floor(sortedValues.length / 2)];
-  const mad = sortedValues
-    .map((v) => Math.abs(v - median))
-    .sort((a, b) => a - b)[Math.floor(sortedValues.length / 2)];
+  const mad =
+    sortedValues
+      .map((v) => Math.abs(v - median))
+      .sort((a, b) => a - b)[Math.floor(sortedValues.length / 2)] || 1; // Prevent a zero-width bound from flagging float noise as significant
   const lowerBound = median - madMultiplier * mad;
   const upperBound = median + madMultiplier * mad;
 
@@ -263,11 +264,11 @@ const findSignificantDropoffsHampel = (
     const median = window.slice().sort((a, b) => a - b)[
       Math.floor(window.length / 2)
     ];
-    const mad =
-      k *
+    const windowMad =
       window.map((v) => Math.abs(v - median)).sort((a, b) => a - b)[
         Math.floor(window.length / 2)
-      ];
+      ] || 1; // Prevent a zero-width bound from flagging float noise as significant
+    const mad = k * windowMad;
 
     if (Math.abs(dropoffs[i].dropoff - median) > nSigma * mad) {
       offs.push(dropoffs[i].index);

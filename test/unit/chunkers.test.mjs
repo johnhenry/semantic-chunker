@@ -119,8 +119,32 @@ test("maxChunkSize splits oversized chunks at the weakest interior point", async
   );
   assert.ok(chunks.length > 1, "oversized chunk should be split");
   for (const [text] of chunks) {
-    assert.ok(text.length <= 60 || !text.includes(". "), `chunk too long: ${text}`);
+    assert.ok(text.length <= 60, `chunk too long: ${text}`);
   }
+});
+
+test("maxChunkSize falls back to character-level splitting for a single run-on segment (regression: single-segment chunks were never split)", async () => {
+  // No sentence-ending punctuation -> compromise treats this as one
+  // sentence, so the corpus has exactly one segment. enforceChunkSize's
+  // `end - start > 1` guard can never fire for a single-segment chunk, so
+  // without a fallback this used to come back as one oversized chunk.
+  const runOn = Array.from({ length: 500 }, (_, i) => `word${i}`).join(" ");
+  assert.ok(runOn.length > 2000, "fixture should be long enough to matter");
+
+  const chunks = await collect(
+    semantic({ embed: mockEmbed, maxChunkSize: 50 }),
+    runOn
+  );
+
+  assert.ok(chunks.length > 1, "the single long segment should be split");
+  for (const [text] of chunks) {
+    assert.ok(text.length <= 50, `chunk too long: ${text.length} chars`);
+  }
+  assert.strictEqual(
+    chunks.map(([t]) => t).join(""),
+    runOn,
+    "reassembled chunks should reproduce the original text exactly"
+  );
 });
 
 test("minChunkSize merges undersized chunks", async () => {

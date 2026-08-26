@@ -37,6 +37,29 @@ test("splitter yields fixed-size slices covering the whole text", () => {
   assert.strictEqual(slices.join(""), "abcdefghij");
 });
 
+test("splitter never separates a UTF-16 surrogate pair (regression: split boundary could cut an emoji in half)", () => {
+  // "aaa😀bbb" is "aaa😀bbb"; the emoji is a surrogate pair at
+  // code units 3-4, so a naive split at 4 would land right between them.
+  const text = "aaa😀bbb";
+  const slices = [...splitter(text, 4)];
+  // Reassembling must reproduce the original text exactly (no dropped or
+  // duplicated code units from the boundary shift).
+  assert.strictEqual(slices.join(""), text);
+  for (const slice of slices) {
+    // A lone surrogate is invalid Unicode: TextEncoder replaces it with
+    // U+FFFD, so round-tripping through UTF-8 changes the byte length.
+    const bytes = new TextEncoder().encode(slice);
+    const roundTripped = new TextDecoder().decode(bytes);
+    assert.strictEqual(
+      roundTripped,
+      slice,
+      `slice should contain no unpaired surrogate: ${JSON.stringify(slice)}`
+    );
+  }
+  // The emoji itself must appear intact in exactly one slice.
+  assert.strictEqual(slices.filter((s) => s.includes("😀")).length, 1);
+});
+
 test("segment splits sentences by default", () => {
   const segments = segment("One sentence here. Another one there.");
   assert.strictEqual(segments.length, 2);

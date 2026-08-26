@@ -37,7 +37,20 @@ test("IQ flags values outside the interquartile bounds", () => {
 });
 
 test("MAD flags the spike (regression: used to throw ReferenceError)", () => {
-  assert.deepStrictEqual(findSignificantDropoffsMAD(SPIKE, 3), [5]);
+  // SPIKE's raw MAD is exactly 0 (7 of 8 values are identical), so with the
+  // mad===0 guard now in place the effective bound width is 1 (not 0);
+  // madMultiplier is lowered from 3 to keep the 0.8-wide spike outside it.
+  assert.deepStrictEqual(findSignificantDropoffsMAD(SPIKE, 0.5), [5]);
+});
+
+test("MAD does not flag spurious dropoffs on near-uniform data with only float noise (regression: mad===0 with no guard)", () => {
+  // All values equal -> median absolute deviation is exactly 0, which
+  // without a guard collapses the bounds to the median itself, so any
+  // floating-point noise would be (falsely) flagged as an outlier.
+  const nearUniform = toDropoffs([
+    0.2, 0.2 + Number.EPSILON, 0.2 - Number.EPSILON, 0.2, 0.2 + Number.EPSILON,
+  ]);
+  assert.deepStrictEqual(findSignificantDropoffsMAD(nearUniform, 3), []);
 });
 
 test("PercentChange flags the drop after the spike", () => {
@@ -69,7 +82,23 @@ test("ChangePoint finds the boundary of a step change", () => {
 });
 
 test("Hampel flags the spike within its window", () => {
-  assert.deepStrictEqual(findSignificantDropoffsHampel(SPIKE, 7, 3), [5]);
+  // Same rationale as the MAD test above: the spike's window MAD is
+  // exactly 0, so with the mad===0 guard the effective scaled MAD is
+  // k*1 ≈ 1.48; nSigma is lowered from 3 to keep the spike outside it.
+  assert.deepStrictEqual(findSignificantDropoffsHampel(SPIKE, 7, 0.5), [5]);
+});
+
+test("Hampel does not flag spurious dropoffs on near-uniform data with only float noise (regression: mad===0 with no guard)", () => {
+  const nearUniform = toDropoffs([
+    0.2,
+    0.2 + Number.EPSILON,
+    0.2 - Number.EPSILON,
+    0.2,
+    0.2 + Number.EPSILON,
+    0.2 - Number.EPSILON,
+    0.2,
+  ]);
+  assert.deepStrictEqual(findSignificantDropoffsHampel(nearUniform, 7, 3), []);
 });
 
 test("ModifiedZScore flags the spike at a low threshold", () => {

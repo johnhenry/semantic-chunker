@@ -2,6 +2,7 @@ import createSentenceChunker from "./sentence.mjs";
 import cosineSimilarity from "./utility/cosine-similarity.mjs";
 import findSignificantDropoffs from "./utility/dropoff-chooser.mjs";
 import enforceChunkSize from "./utility/enforce-chunk-size.mjs";
+import { splitter } from "./utility/splitter.mjs";
 import { nullEmbed } from "./utility/null-embed.mjs";
 
 /**
@@ -73,8 +74,20 @@ const createChunker = async function* (
     const from = startIndex === 0 ? 0 : Math.max(0, startIndex - overlap);
     const chunk = corpus.slice(from, endIndex);
     const chunkText = chunk.map((item) => item[0]).join(" ");
-    const chunkEmbedding = await embed(chunkText);
-    yield [chunkText, chunkEmbedding];
+    if (maxChunkSize > 0 && chunkText.length > maxChunkSize) {
+      // enforceChunkSize can only split at segment boundaries, so a chunk
+      // made of a single (or otherwise unsplittable) segment can still
+      // exceed maxChunkSize after Step 2. Fall back to hard character-level
+      // splitting here so the limit is never silently exceeded — this is
+      // automatic whenever maxChunkSize is set, not a separate opt-in.
+      for (const slice of splitter(chunkText, maxChunkSize)) {
+        const sliceEmbedding = await embed(slice);
+        yield [slice, sliceEmbedding];
+      }
+    } else {
+      const chunkEmbedding = await embed(chunkText);
+      yield [chunkText, chunkEmbedding];
+    }
     startIndex = endIndex;
   }
 };

@@ -5,7 +5,30 @@ import compromise from "compromise";
  */
 
 /**
- * Splits text into fixed-size character slices.
+ * `String.prototype.slice` operates on UTF-16 code units, not code points.
+ * A split boundary that lands between a high surrogate (0xD800-0xDBFF) and
+ * its low surrogate would cut an astral-plane character (e.g. an emoji) in
+ * half, leaving each side with a lone, unpaired surrogate — invalid
+ * Unicode once encoded (e.g. to UTF-8). Nudge the boundary forward by one
+ * code unit so it always falls after a complete pair instead.
+ *
+ * @param {string} text
+ * @param {number} end - Candidate split boundary (code-unit index).
+ * @returns {number} `end`, or `end + 1` if that would split a surrogate pair.
+ */
+const safeSplitBoundary = (text, end) =>
+  end > 0 &&
+  end < text.length &&
+  text.charCodeAt(end - 1) >= 0xd800 &&
+  text.charCodeAt(end - 1) <= 0xdbff
+    ? end + 1
+    : end;
+
+/**
+ * Splits text into fixed-size character slices. Never splits a UTF-16
+ * surrogate pair (see `safeSplitBoundary`); slices adjacent to an
+ * astral-plane character may therefore be one code unit longer or shorter
+ * than `split`.
  *
  * @param {string} text
  * @param {number} [split=2**8] - Maximum slice length in characters.
@@ -13,11 +36,11 @@ import compromise from "compromise";
  */
 export const splitter = function* (text, split = 2 ** 8) {
   let start = 0;
-  let end = split;
+  let end = safeSplitBoundary(text, Math.min(split, text.length));
   while (start < text.length) {
     yield text.slice(start, end);
     start = end;
-    end = Math.min(end + split, text.length);
+    end = safeSplitBoundary(text, Math.min(end + split, text.length));
   }
 };
 
