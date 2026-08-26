@@ -6,6 +6,8 @@
 
 Semantic Chunker is a versatile library for dividing text into semantically meaningful chunks. It employs a BYOE (Bring Your Own Embedder) approach, allowing users to provide their own embedding function that maps text to a vector space.
 
+**Documentation:** [opensource.johnhenry.me/semantic-chunker](https://opensource.johnhenry.me/semantic-chunker/)
+
 ## Table of Contents
 
 - [Semantic Chunker](#semantic-chunker)
@@ -33,6 +35,7 @@ Semantic Chunker is a versatile library for dividing text into semantically mean
     - [How to Adjust Chunk Size](#how-to-adjust-chunk-size)
     - [How to Choose a Detection Method](#how-to-choose-a-detection-method)
     - [How to Chunk Markdown](#how-to-chunk-markdown)
+  - [Examples](#examples)
   - [Demo](#demo)
   - [Testing](#testing)
   - [Contributing](#contributing)
@@ -381,6 +384,19 @@ const chunker = semantic({
 
 Use `splitMode: "paragraph"` for plain text organized into paragraphs separated by blank lines.
 
+## Examples
+
+The [`examples/`](./examples/) directory contains numbered, self-asserting
+examples: the three strategies compared on the same document, the ten
+statistical detection methods compared on the same dropoff series,
+chunk-size limits and overlap, and an env-gated run against the real xenova
+embedding adapter.
+
+```bash
+npm run example:01   # run one
+npm run examples     # run them all (the xenova example skips unless RUN_XENOVA_EXAMPLE=1)
+```
+
 ## Demo
 
 Run a demo with the following command:
@@ -405,40 +421,8 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
 
-### [0.0.4]
-
-- Fixed: `package.json` `exports` map lacked a `types` condition, so TypeScript consumers using `moduleResolution: "NodeNext"` (or `"Node16"`) couldn't find the shipped type declarations ([#1](https://github.com/johnhenry/semantic-chunker/issues/1))
-
-### [0.0.3]
-
-- Fixed: `MAD` detection method crashed with a `ReferenceError`; the full chunker yielded an unresolved Promise as the embedding; cosine similarity returned `NaN` for zero/empty vectors
-- Added: `method`/`methodOptions` options exposing eleven boundary detection methods (including the new `Agentic` method)
-- Added: `overlap`, `maxChunkSize`, `minChunkSize` chunk-shaping options
-- Added: `splitMode` option (`sentence`, `paragraph`, `markdown`)
-- Added: embed adapters as subpath exports (`semantic-chunker/embed/xenova`, `semantic-chunker/embed/ollama`) backed by optional peer dependencies
-- Added: offline unit test suite, gated integration tests, CI, and TypeScript checking
-- Changed: accurate type definitions; `engines.node` >= 20.6.0; slimmer npm package
-
-### [0.0.2]
-
-- Demo fixed minor issues with demo and docs
-
-### [0.0.1]
-
-- Demo is more robust and outputs markdown
-- Fix documentation for `options.split`
-- Add options.split to ful chunker
-
-### [0.0.0]
-
-#### Added
-
-- Initial release of the semantic-chunker package
-- Semantic chunker for semantic text division
-- Sentence chunker for sentence-level text division
-- Full chunker for processing entire documents
-- README with usage examples and API documentation
-- Basic test suite
+See [CHANGELOG.md](./CHANGELOG.md), which includes the history of the
+package's previous life as the unscoped `semantic-chunker`.
 
 ## License
 
