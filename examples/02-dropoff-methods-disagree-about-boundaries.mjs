@@ -34,7 +34,14 @@ for (const [method, options] of cases) {
 
 // The spike itself sits at index 5.
 assert.deepStrictEqual(await findSignificantDropoffs(SPIKE, "SD", { zScoreThreshold: 2 }), [5]);
-assert.deepStrictEqual(await findSignificantDropoffs(SPIKE, "MAD", { madMultiplier: 3 }), [5]);
+// MAD and Hampel: 7 of the 8 dropoffs are identical, so the raw median
+// absolute deviation of this window is exactly 0. Both are guarded against
+// that (a zero-width bound would flag any nonzero deviation, including
+// float noise, as "significant"), so at their default-ish multiplier of 3
+// they don't fire on this data either — like CUSUM below, they need a
+// tighter multiplier tuned to this data to catch the spike.
+assert.deepStrictEqual(await findSignificantDropoffs(SPIKE, "MAD", { madMultiplier: 3 }), []);
+assert.deepStrictEqual(await findSignificantDropoffs(SPIKE, "MAD", { madMultiplier: 0.5 }), [5]);
 // PercentChange marks the fall after the spike, one index later.
 assert.deepStrictEqual(
   await findSignificantDropoffs(SPIKE, "PercentChange", { percentThreshold: 20 }),

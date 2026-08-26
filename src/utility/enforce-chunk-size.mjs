@@ -25,10 +25,15 @@ const segmentsFrom = (boundaries, length) => {
  *
  * Oversized chunks (joined text longer than maxChunkSize) are split at their
  * highest-dropoff interior point until no further split is possible; chunks
- * of a single segment are never split. Undersized chunks (shorter than
- * minChunkSize) are merged into the neighbor across the more-similar
- * (lower-dropoff) boundary. minChunkSize is applied after maxChunkSize, so
- * when the two conflict, minChunkSize wins.
+ * of a single segment can't be split at a segment boundary (there isn't
+ * one) and are returned as-is here — the caller (`createChunker` in
+ * `semantic.mjs`) falls back to hard character-level splitting for any
+ * chunk still over maxChunkSize after this pass, so the limit is never
+ * silently exceeded even though this function can't enforce it alone.
+ * Undersized chunks (shorter than minChunkSize) are merged into the
+ * neighbor across the more-similar (lower-dropoff) boundary. minChunkSize
+ * is applied after maxChunkSize, so when the two conflict, minChunkSize
+ * wins.
  *
  * @param {Corpus} corpus - The embedded segments being chunked.
  * @param {number[]} boundaries - Sorted segment indices where chunks begin.
