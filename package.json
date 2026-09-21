@@ -36,7 +36,7 @@
     "src/",
     "embed/",
     "types/",
-    "readme.md",
+    "README.md",
     "LICENSE"
   ],
   "types": "types/types.d.ts",
