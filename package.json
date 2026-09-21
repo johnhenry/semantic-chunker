@@ -83,7 +83,7 @@
     "typescript": "^7.0.2"
   },
   "engines": {
-    "node": ">=20.6.0"
+    "node": ">=26.0.0"
   },
   "homepage": "https://opensource.johnhenry.me/semantic-chunker/"
 }
