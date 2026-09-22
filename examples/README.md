@@ -1,4 +1,4 @@
-# Examples
+# semantic-chunker examples
 
 Runnable, self-asserting examples. Each one prints what it demonstrates and
 fails loudly (non-zero exit) if the library stops behaving as described.
