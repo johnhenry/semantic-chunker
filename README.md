@@ -4,43 +4,40 @@
 > Renamed to `@johnhenry/semantic-chunker` and restarted at 0.0.0 on import into
 > the @johnhenry family — a new address and era, not a maturity signal.
 
+[![npm version](https://img.shields.io/npm/v/%40johnhenry%2Fsemantic-chunker.svg)](https://www.npmjs.com/package/@johnhenry/semantic-chunker)
+[![CI](https://github.com/johnhenry/semantic-chunker/actions/workflows/ci.yml/badge.svg)](https://github.com/johnhenry/semantic-chunker/actions/workflows/ci.yml)
+[![license](https://img.shields.io/npm/l/%40johnhenry%2Fsemantic-chunker.svg)](LICENSE)
+
 Semantic Chunker is a versatile library for dividing text into semantically meaningful chunks. It employs a BYOE (Bring Your Own Embedder) approach, allowing users to provide their own embedding function that maps text to a vector space.
 
-**Documentation:** [opensource.johnhenry.me/semantic-chunker](https://opensource.johnhenry.me/semantic-chunker/)
+Full documentation: [opensource.johnhenry.me/semantic-chunker](https://opensource.johnhenry.me/semantic-chunker/)
 
-## Table of Contents
+## Contents
 
-- [Semantic Chunker](#semantic-chunker)
-  - [Table of Contents](#table-of-contents)
-  - [Installation](#installation)
-  - [Features](#features)
-  - [Understanding Semantic Chunking](#understanding-semantic-chunking)
-  - [Getting Started](#getting-started)
-  - [Usage](#usage)
-    - [Semantic Chunker](#semantic-chunker-1)
-    - [Other Chunkers](#other-chunkers)
-      - [Sentence Chunker](#sentence-chunker)
-      - [Full Chunker](#full-chunker)
-  - [API](#api)
-    - [`semantic(options)`](#semanticoptions)
-    - [`sentence(options)`](#sentenceoptions)
-    - [`full(options)`](#fulloptions)
-    - [Boundary Detection Methods](#boundary-detection-methods)
-  - [Embedding Functions](#embedding-functions)
-    - [Bundled Adapters](#bundled-adapters)
-    - [Example: Local Embedding](#example-local-embedding)
-    - [Example: External API Call](#example-external-api-call)
-  - [How-to Guides](#how-to-guides)
-    - [How to Use a Custom Embedding Function](#how-to-use-a-custom-embedding-function)
-    - [How to Adjust Chunk Size](#how-to-adjust-chunk-size)
-    - [How to Choose a Detection Method](#how-to-choose-a-detection-method)
-    - [How to Chunk Markdown](#how-to-chunk-markdown)
-  - [Examples](#examples)
-  - [Demo](#demo)
-  - [Testing](#testing)
-  - [Contributing](#contributing)
-  - [Changelog](#changelog)
-  - [License](#license)
+- [Installation](#installation)
+- [Features](#features)
+- [Understanding Semantic Chunking](#understanding-semantic-chunking)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+  - [Semantic Chunker](#semantic-chunker-1)
+  - [Other Chunkers](#other-chunkers)
+- [API](#api)
+  - [`semantic(options)`](#semanticoptions)
+  - [`sentence(options)`](#sentenceoptions)
+  - [`full(options)`](#fulloptions)
+  - [Boundary Detection Methods](#boundary-detection-methods)
+- [Embedding Functions](#embedding-functions)
+  - [Bundled Adapters](#bundled-adapters)
+  - [Example: Local Embedding](#example-local-embedding)
+  - [Example: External API Call](#example-external-api-call)
+- [How-to Guides](#how-to-guides)
+- [Adding a new detection method](#adding-a-new-detection-method)
+- [Examples](#examples)
+- [Demo](#demo)
+- [Testing](#testing)
+- [Contributing](#contributing)
+- [Changelog](#changelog)
+- [License](#license)
 
 ## Installation
 
@@ -51,7 +48,7 @@ npm install @johnhenry/semantic-chunker
 ```
 
 > [!IMPORTANT]
-> Semantic Chunker requires **Node.js >= 20.6.0**.
+> Semantic Chunker requires **Node.js >= 26.0.0**.
 
 ## Features
 
@@ -383,6 +380,69 @@ const chunker = semantic({
 ```
 
 Use `splitMode: "paragraph"` for plain text organized into paragraphs separated by blank lines.
+
+## Adding a new detection method
+
+The eleven existing methods (`"SD"` through `"Agentic"`, see
+[Boundary Detection Methods](#boundary-detection-methods)) are the best real
+worked example already in this package's own history — each one landed the
+same way, most recently in the `0.0.3` unscoped release (see
+`CHANGELOG.md`'s "History as unscoped `semantic-chunker`" section).
+
+There is no smaller alternative to reach for first: `src/utility/dropoff-chooser.mjs`'s
+`findSignificantDropoffs()` is already just a `switch` over the method name,
+so adding a new one is exactly one more `case`, reusing the same `dropoffs`
+array every other case already receives. The one question that decides
+whether a new case is warranted at all: does the new method need real
+per-call state or an external model, or is it a pure function over the
+existing `dropoffs` array? If the latter, it's a new case; if it needs a
+model (as `"Agentic"` does), it still needs only one case, but that case
+lazy-imports its implementation instead of calling a plain function (see
+below).
+
+1. **`src/utility/find-significant-dropoffs.mjs`** — export a new
+   `findSignificantDropoffsXxx(dropoffs, ...methodOptions)` function that
+   returns the same shape every other method returns: an array of `dropoffs[].index`
+   values, sorted ascending. Copy-paste `findSignificantDropoffsIQ`'s shape —
+   compute a per-call statistic over `dropoffs`, filter, map to `.index`, sort.
+2. **`src/utility/dropoff-chooser.mjs`** — add one `case "Xxx":` to the
+   `switch` in `findSignificantDropoffs()`, calling the new function with
+   whatever `options.*` fields it needs. This is the only dispatch point;
+   there is no separate registry to update.
+3. **`types/types.d.ts`** — add `"Xxx"` to the `DropoffMethod` union, and
+   document any new `MethodOptions` fields the method reads.
+4. **The one part that isn't boilerplate: deciding what the method
+   actually measures.** Every existing method answers the same question —
+   "is this dropoff big enough, relative to the others, to be a chunk
+   boundary?" — with a different statistic (z-score, IQR, moving average,
+   cumulative sum, ...). That choice, not the plumbing above, is what makes
+   a new method worth adding instead of tuning an existing one's options.
+
+**A method that needs an external model, not just arithmetic: `"Agentic"`.**
+Unlike the other ten, `findSignificantDropoffsAgentic` lives in its own file
+(`src/utility/find-significant-dropoffs.agentic.mjs`) and is lazy-imported
+inside the `"Agentic"` case, because it depends on the optional peer
+dependency `@huggingface/transformers` — the rest of the library must keep
+working when that package isn't installed. A new model-backed method follows
+this shape, not the plain-function one, whenever it has an optional peer
+dependency to isolate.
+
+**Tests.** `test/unit/dropoffs.test.mjs` runs every method against fixed,
+hand-computed `dropoffs` arrays — no embedding model, no network. A new
+method's test asserts the exact boundary indices it produces for at least
+one case designed to distinguish it from the existing ten (otherwise the
+test can't tell a real implementation from a copy-paste of `"SD"`).
+
+Run `npm run example:02` to see the new method compared against every other
+one on the same real dropoff series.
+
+Adding a new **embedding adapter** (`embed/xenova.mjs`, `embed/ollama.mjs`)
+is a different, smaller shape: one file under `embed/`, exporting a function
+matching the `Embed` type (`(text) => number[] | Promise<number[]>`), added
+as a new `exports` subpath and `files` entry in `package.json`, with its peer
+dependency added to `peerDependencies`/`peerDependenciesMeta` as optional —
+there is no switch statement to extend, since adapters are imported directly
+by subpath rather than dispatched by name.
 
 ## Examples
 
