@@ -7,21 +7,11 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        # engines.node >=26.0.0 -- test the floor version directly rather
-        # than a matrix of now-unsupported older majors.
-        node-version: [26]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: npm
-      - run: npm ci
-      - run: npm test
-      - run: npm run typecheck
-      # Example 04 is env-dependent (model download) and self-skips
-      # unless RUN_XENOVA_EXAMPLE=1; the loop stays offline in CI.
-      - run: npm run examples
+    uses: johnhenry/workflows/.github/workflows/ci.yml@v1
+    with:
+      node-versions: '["26"]'
+      os: '["ubuntu-latest"]'
+      gate-commands: |
+        npm test
+        npm run typecheck
+        npm run examples
