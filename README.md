@@ -245,7 +245,7 @@ const chunker = semantic({
 > The `"Agentic"` method requires the optional peer dependency [`@huggingface/transformers`](https://www.npmjs.com/package/@huggingface/transformers) (`npm install @huggingface/transformers`). It is loaded lazily, so the rest of the library works without it.
 
 > [!WARNING]
-> Do not combine the `"Agentic"` method with the bundled `semantic-chunker/embed/xenova` adapter. The onnxruntime bindings shipped by `@xenova/transformers` (v2) and `@huggingface/transformers` (v3) conflict in the same process: once v3 has run inference, subsequent v2 inference hangs forever. When using `"Agentic"`, build your embedding function on `@huggingface/transformers` too (or use a non-onnx embedder such as Ollama).
+> Do not combine the `"Agentic"` method with the `semantic-chunker/embed/xenova` adapter's Node-only `embed` convenience, or with `xenova({ transformers })` pointed at `@xenova/transformers`. The onnxruntime bindings shipped by `@xenova/transformers` (v2) and `@huggingface/transformers` (v3) conflict in the same process: once v3 has run inference, subsequent v2 inference hangs forever. When using `"Agentic"`, build your embedding function — and, if you also want the `xenova` adapter, call `xenova({ transformers })` — on `@huggingface/transformers` too (or use a non-onnx embedder such as Ollama).
 
 The raw detection functions are also exported for direct use:
 
@@ -274,22 +274,49 @@ The flexibility of bringing your own embedder (BYOE) allows you to:
 Two ready-made adapters ship with the package as subpath imports. Each requires its optional peer dependency:
 
 ```javascript
-import { embed } from "@johnhenry/semantic-chunker/embed/xenova"; // needs @xenova/transformers
+import { embed } from "@johnhenry/semantic-chunker/embed/xenova"; // Node only, needs @xenova/transformers
 import { embed } from "@johnhenry/semantic-chunker/embed/ollama"; // needs ollama
 ```
 
 ### Example: Local Embedding
 
-`semantic-chunker/embed/xenova` creates an embedding function using a local transformer model.
+`semantic-chunker/embed/xenova` creates an embedding function using a local transformer model, via a `pipeline` function you supply. It does no work at import time — no network access, no top-level await, no `process` access — so the module itself loads fine in Node, a bundler, or a browser; only the embed function it returns touches the network, and only on first use.
 
-For this example to work, in addition to the [`@xenova/transformers` npm package](https://www.npmjs.com/package/@xenova/transformers),
-you will need to obtain a [read-access token from Hugging Face](https://huggingface.co/settings/tokens) and set it to the `HF_ACCESS_TOKEN` environment variable.
+```javascript
+import { xenova } from "@johnhenry/semantic-chunker/embed/xenova";
+import { pipeline } from "@huggingface/transformers"; // or @xenova/transformers
+
+const embed = xenova({ model: "Supabase/gte-small", transformers: pipeline });
+```
+
+`transformers` also accepts the whole imported module (`import * as transformers from "@huggingface/transformers"`) instead of just `pipeline` — pass that form if you also want to set an `accessToken`, applied via the module's `env.HF_ACCESS_TOKEN`:
+
+```javascript
+import * as transformers from "@huggingface/transformers";
+
+const embed = xenova({
+  model: "Supabase/gte-small",
+  transformers,
+  accessToken: process.env.HF_ACCESS_TOKEN,
+});
+```
+
+> [!NOTE]
+> In a browser build, import `@huggingface/transformers` (or `@xenova/transformers`) however your bundler/CDN setup expects — a bare specifier, a URL, an import map — and pass its `pipeline` to `xenova()`. This adapter never imports a transformers package itself, so it never assumes Node-style `node_modules` resolution.
+
+For **Node**, a zero-configuration convenience is still available — same call shape as before the adapter became a factory:
+
+```javascript
+import { embed } from "@johnhenry/semantic-chunker/embed/xenova";
+```
+
+It lazily imports [`@xenova/transformers`](https://www.npmjs.com/package/@xenova/transformers) and the [`Supabase/gte-small` model](https://huggingface.co/Supabase/gte-small) the first time `embed()` is called (not at import time), reading `HF_ACCESS_TOKEN` from the environment if you need a Hugging Face access token:
 
 ```bash
 export HF_ACCESS_TOKEN=<your_access_token>
 ```
 
-Upon first run, it will take a while to download the [`Supabase/gte-small` model](https://huggingface.co/Supabase/gte-small), but subsequent runs will be much faster.
+Upon first call, it will take a while to download the model, but subsequent calls will be much faster.
 
 ### Example: External API Call
 

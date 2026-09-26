@@ -1,17 +1,26 @@
 # Changelog
 
-## [Unreleased]
-
-<!-- Deliberately not relabeled to a dated `## <version>` heading in this
-     retrofit: the family CHANGELOG standard ties a dated entry to a version
-     bump in the same PR (adopt-library, templates/CHANGELOG.md rule 1), and
-     bumping `package.json`'s `version` is a release decision, not a
-     documentation-formatting one -- out of scope for this PR. Everything
-     below is already merged to `main`; only the version bump that would
-     retitle this section as a dated release is outstanding. -->
+## 0.0.1 -- `embed/xenova` is browser-safe (2026-09-26)
 
 ### Fixed
 
+- **`embed/xenova` was Node-only and did real work at *import* time.** It
+  imported `@xenova/transformers` by bare specifier (unresolvable via a URL
+  or most bundler/CDN setups), read `process.env.HF_ACCESS_TOKEN` at module
+  scope (`process` doesn't exist in a browser), and top-level-awaited
+  loading a hardcoded `Supabase/gte-small` pipeline, so merely importing the
+  module blocked on a network download with no way to pick a different
+  model. `embed/xenova.mjs` is now a factory, `xenova({ model, transformers
+  })`: it takes the model id and an already-imported `pipeline` function (or
+  the whole imported transformers module) as parameters instead of importing
+  a transformers package itself, and does no work -- no network, no
+  `process` access, no top-level await -- until the embed function it
+  returns is actually invoked. **Not breaking**: the original `import {
+  embed } from ".../embed/xenova"` call shape still works unchanged as a
+  Node-only convenience -- same signature, same default model, same
+  `HF_ACCESS_TOKEN` env var -- it now just does its `@xenova/transformers`
+  import and pipeline creation lazily on first call instead of eagerly at
+  import time. Closes #11.
 - **Single-segment chunks that still exceeded `maxChunkSize` after
   segment-boundary splitting were returned as-is.** `enforceChunkSize` can
   only split at existing segment boundaries, so a chunk that was already one
@@ -31,6 +40,10 @@
 
 ### Added
 
+- `xenova({ model, transformers, accessToken })`, a factory export from
+  `embed/xenova.mjs` alongside the existing `embed`/default export. Usable
+  in a browser (or any non-Node runtime) since the caller supplies their own
+  already-imported `pipeline`/transformers module. Closes #11.
 - `examples/` directory with four numbered, self-asserting examples
   (strategies compared, dropoff-method comparison, size limits & overlap,
   env-gated xenova run) plus `example:NN` / `examples` npm scripts and a CI
@@ -43,6 +56,16 @@
 
 ### Tests
 
+- `test/unit/embed-xenova.test.mjs` added: imports `embed/xenova.mjs` with
+  `globalThis.process` deleted (simulating a browser) and a `fetch` spy,
+  asserting the import neither throws nor makes a network call; exercises
+  `xenova({ transformers })` with a mocked `pipeline` (no work before first
+  invocation, pipeline cached across calls, `accessToken` applied via
+  `env.HF_ACCESS_TOKEN`, a clear `TypeError` when `transformers` is missing)
+  and wires it into the semantic chunker end-to-end. Ran the full real
+  `test:integration` suite (network + real `@xenova/transformers`,
+  `@huggingface/transformers`) to confirm the Node `embed` convenience and
+  the Agentic method still work unchanged.
 - Regression tests added for all three fixes above, across
   `test/unit/{chunkers,dropoffs,utilities}.test.mjs`; the pre-existing
   MAD/Hampel spike tests and `examples/02`'s assertions (which assumed the

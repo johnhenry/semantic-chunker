@@ -12,12 +12,17 @@ const readTestDocument = (filename) =>
   readFile(new URL(`../../docs/${filename}`, import.meta.url), "utf8");
 
 const loadXenova = async () => {
+  // Importing embed/xenova.mjs never throws now (it does no work at import
+  // time -- see #11): the Node convenience `embed` lazily imports
+  // `@xenova/transformers` on first call, so the unavailable-dependency
+  // case is caught around that first call instead of the import.
+  const { embed } = await import("../../embed/xenova.mjs");
   try {
-    const { embed } = await import("../../embed/xenova.mjs");
-    return embed;
+    await embed("");
   } catch {
     return null;
   }
+  return embed;
 };
 
 const ollamaAvailable = async () => {
