@@ -97,6 +97,46 @@ test("xenova({ transformers }) accepts the whole imported module and applies acc
   assert.strictEqual(calls.length, 1);
 });
 
+test("xenova({ pipelineOptions }) forwards progress_callback/dtype/etc. as the pipeline()'s third argument (#13)", async () => {
+  const { xenova } = await import("../../embed/xenova.mjs");
+  const calls = [];
+  const fakePipelineFn = async (task, model, options) => {
+    calls.push({ task, model, options });
+    return async (text, embedOptions) => ({ data: fakeFeatureVector(text) });
+  };
+
+  const progressCallback = () => {};
+  const embed = xenova({
+    model: "fake/model",
+    transformers: fakePipelineFn,
+    pipelineOptions: { progress_callback: progressCallback, dtype: "q8" },
+  });
+
+  await embed("Pigs like mud.");
+
+  assert.strictEqual(calls.length, 1);
+  assert.deepStrictEqual(calls[0], {
+    task: "feature-extraction",
+    model: "fake/model",
+    options: { progress_callback: progressCallback, dtype: "q8" },
+  });
+});
+
+test("xenova({ transformers }) without `pipelineOptions` calls pipeline() with no third argument, unchanged from before #13", async () => {
+  const { xenova } = await import("../../embed/xenova.mjs");
+  const calls = [];
+  const fakePipelineFn = async (...args) => {
+    calls.push(args);
+    return async (text) => ({ data: fakeFeatureVector(text) });
+  };
+
+  const embed = xenova({ model: "fake/model", transformers: fakePipelineFn });
+  await embed("Pigs like mud.");
+
+  assert.strictEqual(calls.length, 1);
+  assert.deepStrictEqual(calls[0], ["feature-extraction", "fake/model"]);
+});
+
 test("xenova() throws a clear error when `transformers` is missing or malformed", async () => {
   const { xenova } = await import("../../embed/xenova.mjs");
   assert.throws(() => xenova(), TypeError);

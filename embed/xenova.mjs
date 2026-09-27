@@ -49,10 +49,17 @@ const DEFAULT_MODEL = "Supabase/gte-small";
  * @param {string} [options.accessToken] - Optional Hugging Face access
  *   token. Only applied when `transformers` is the whole module (so its
  *   `env` export is reachable) -- set via `transformers.env.HF_ACCESS_TOKEN`.
+ * @param {object} [options.pipelineOptions] - Optional options object
+ *   forwarded as-is to the underlying `pipeline("feature-extraction", model,
+ *   { ...pipelineOptions })` call, e.g. `progress_callback` (per-file
+ *   download progress), `dtype`/`quantized`, `device` (`"webgpu"`), or
+ *   `cache_dir`. Omit it to get today's behavior unchanged.
  * @returns {(text: string) => Promise<number[]>} An embed function matching
  *   the library's `EmbedFunction` signature.
  */
-export const xenova = ({ model = DEFAULT_MODEL, transformers, accessToken } = /** @type {any} */ ({})) => {
+export const xenova = (
+  { model = DEFAULT_MODEL, transformers, accessToken, pipelineOptions } = /** @type {any} */ ({})
+) => {
   const pipelineFn =
     typeof transformers === "function" ? transformers : transformers?.pipeline;
   if (typeof pipelineFn !== "function") {
@@ -70,7 +77,9 @@ export const xenova = ({ model = DEFAULT_MODEL, transformers, accessToken } = /*
       if (accessToken && transformers && typeof transformers === "object" && transformers.env) {
         transformers.env.HF_ACCESS_TOKEN = accessToken;
       }
-      instancePromise = pipelineFn("feature-extraction", model);
+      instancePromise = pipelineOptions
+        ? pipelineFn("feature-extraction", model, { ...pipelineOptions })
+        : pipelineFn("feature-extraction", model);
     }
     return instancePromise;
   };

@@ -15,6 +15,14 @@ export interface XenovaOptions {
    * imported module.
    */
   accessToken?: string;
+  /**
+   * Optional options object forwarded as-is to the underlying
+   * `pipeline("feature-extraction", model, { ...pipelineOptions })` call,
+   * e.g. `progress_callback` (per-file download progress), `dtype`/
+   * `quantized`, `device` (`"webgpu"`), or `cache_dir`. Omit it to get
+   * today's behavior unchanged.
+   */
+  pipelineOptions?: Record<string, any>;
 }
 
 /**

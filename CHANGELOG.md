@@ -1,5 +1,31 @@
 # Changelog
 
+## 0.0.2 -- `embed/xenova` forwards pipeline options (2026-09-26)
+
+### Added
+
+- **`xenova({ ..., pipelineOptions })`.** #12's factory rewrite called
+  `pipeline("feature-extraction", model)` with no options object, so a
+  caller had no way to reach `progress_callback` (per-file download
+  progress), `dtype`/`quantized`, `device` (e.g. `"webgpu"`), or
+  `cache_dir` -- options the underlying `@huggingface/transformers`/
+  `@xenova/transformers` `pipeline()` call already supports. Consumers like
+  ORRERY's Chunker Scope room used to show real per-file download progress
+  and had to fall back to an indeterminate bar after the factory rewrite.
+  `pipelineOptions` is spread into the `pipeline()` call as its third
+  argument (`pipeline("feature-extraction", model, { ...pipelineOptions })`)
+  when provided. **Not breaking**: omitting `pipelineOptions` calls
+  `pipeline()` with exactly the same two arguments as before, so existing
+  callers are unaffected. Closes #13.
+
+### Tests
+
+- `test/unit/embed-xenova.test.mjs`: added a regression test asserting that
+  `pipelineOptions: { progress_callback, dtype: "q8" }` passed to `xenova()`
+  arrives at the mocked `pipeline()` call as its third argument, plus a test
+  confirming that omitting `pipelineOptions` still calls `pipeline()` with
+  only the task and model (no third argument), matching pre-#13 behavior.
+
 ## 0.0.1 -- `embed/xenova` is browser-safe (2026-09-26)
 
 ### Fixed
