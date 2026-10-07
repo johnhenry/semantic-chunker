@@ -15,3 +15,6 @@ jobs:
         npm test
         npm run typecheck
         npm run examples
+
+  workflow-lint:
+    uses: johnhenry/workflows/.github/workflows/workflow-lint.yml@v1
