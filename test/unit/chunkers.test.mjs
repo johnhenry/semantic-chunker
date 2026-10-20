@@ -168,3 +168,17 @@ test("semantic markdown split mode respects block structure", async () => {
     "# Pigs Pigs like mud. # Rockets Rockets fly to space."
   );
 });
+
+test("hardSplit:'word' keeps maxChunkSize from cutting mid-word on a run-on segment", async () => {
+  const text = "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor";
+  const chunks = await collect(
+    semantic({ embed: mockEmbed, maxChunkSize: 20, hardSplit: "word" }),
+    text
+  );
+  const words = new Set(text.split(" "));
+  assert.strictEqual(chunks.map((c) => c[0]).join("").replace(/\s+/g, " ").trim(), text);
+  for (const [t] of chunks) {
+    assert.ok(t.length <= 20);
+    for (const w of t.split(/\s+/).filter(Boolean)) assert.ok(words.has(w), `cut word: ${w}`);
+  }
+});

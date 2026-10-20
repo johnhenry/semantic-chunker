@@ -13,12 +13,13 @@ import splitter from "./utility/splitter.mjs";
  * @param {Object} [options]
  * @param {EmbedFunction} [options.embed=nullEmbed]
  * @param {number} [options.split=0] - Maximum slice length in characters (0 disables slicing).
+ * @param {"char" | "word"} [options.hardSplit="char"] - "word" breaks slices at whitespace.
  * @returns {Chunker}
  */
-export const createDefaultChunker = ({ embed = nullEmbed, split = 0 } = {}) => {
+export const createDefaultChunker = ({ embed = nullEmbed, split = 0, hardSplit = "char" } = {}) => {
   return async function* (/** @type {string} */ text) {
     if (split) {
-      for await (const chunk of splitter(text, split)) {
+      for await (const chunk of splitter(text, split, hardSplit)) {
         yield [chunk, await embed(chunk)];
       }
     } else {

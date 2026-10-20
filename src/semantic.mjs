@@ -28,6 +28,7 @@ import { nullEmbed } from "./utility/null-embed.mjs";
  * @param {number} [options.overlap=0] - Number of trailing segments from the previous chunk to prepend to the next.
  * @param {number} [options.maxChunkSize=0] - Maximum chunk length in characters (0 disables).
  * @param {number} [options.minChunkSize=0] - Minimum chunk length in characters (0 disables).
+ * @param {"char" | "word"} [options.hardSplit="char"] - How an oversized single segment is cut: "word" breaks at whitespace instead of mid-word.
  * @returns {AsyncGenerator<EmbeddedChunk>}
  */
 const createChunker = async function* (
@@ -39,6 +40,7 @@ const createChunker = async function* (
     overlap = 0,
     maxChunkSize = 0,
     minChunkSize = 0,
+    hardSplit = "char",
   } = {}
 ) {
   // Step 1: Analyze the entire corpus to find dropoffs in similarity
@@ -80,7 +82,7 @@ const createChunker = async function* (
       // exceed maxChunkSize after Step 2. Fall back to hard character-level
       // splitting here so the limit is never silently exceeded — this is
       // automatic whenever maxChunkSize is set, not a separate opt-in.
-      for (const slice of splitter(chunkText, maxChunkSize)) {
+      for (const slice of splitter(chunkText, maxChunkSize, hardSplit)) {
         const sliceEmbedding = await embed(slice);
         yield [slice, sliceEmbedding];
       }
@@ -107,6 +109,7 @@ const createChunker = async function* (
  * @param {number} [options.overlap=0] - Number of trailing segments from the previous chunk to prepend to the next.
  * @param {number} [options.maxChunkSize=0] - Maximum chunk length in characters (0 disables).
  * @param {number} [options.minChunkSize=0] - Minimum chunk length in characters (0 disables).
+ * @param {"char" | "word"} [options.hardSplit="char"] - How an oversized single segment is cut: "word" breaks at whitespace instead of mid-word.
  * @returns {Chunker}
  */
 export const createSemanticChunker = ({
@@ -119,10 +122,11 @@ export const createSemanticChunker = ({
   overlap = 0,
   maxChunkSize = 0,
   minChunkSize = 0,
+  hardSplit = "char",
 } = {}) => {
   const resolvedOptions =
     method === "SD" ? { zScoreThreshold, ...methodOptions } : methodOptions;
-  const sentenceChunker = createSentenceChunker({ embed, split, splitMode });
+  const sentenceChunker = createSentenceChunker({ embed, split, splitMode, hardSplit });
   return async function* (/** @type {string} */ text) {
     const newCorpus = [];
     // First Pass: Chunk into sentences
@@ -136,6 +140,7 @@ export const createSemanticChunker = ({
       overlap,
       maxChunkSize,
       minChunkSize,
+      hardSplit,
     })) {
       yield chunk;
     }

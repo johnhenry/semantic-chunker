@@ -54,10 +54,14 @@ export type MethodOptions = {
 
 export type SplitMode = "sentence" | "paragraph" | "markdown";
 
+export type HardSplit = "char" | "word";
+
 export interface FullOptions {
   embed?: EmbedFunction;
   /** Maximum segment length in characters; longer text is hard-split (0 disables). */
   split?: number;
+  /** How hard splits (`split`, `maxChunkSize`) choose a cut point. "word" breaks at whitespace, cutting inside a word only if one word exceeds the limit. Default "char". */
+  hardSplit?: HardSplit;
 }
 
 export interface SentenceOptions extends FullOptions {
