@@ -84,3 +84,26 @@ test("segment markdown mode separates headings and keeps code fences intact", ()
 test("segment throws on unknown mode", () => {
   assert.throws(() => segment("text", "bogus"), /Unknown split mode/);
 });
+
+test("splitter hardSplit:'word' breaks at whitespace, never mid-word, and covers the text", () => {
+  const text = "alpha beta gamma delta epsilon";
+  const slices = [...splitter(text, 12, "word")];
+  assert.strictEqual(slices.join(""), text);
+  for (const s of slices) {
+    assert.ok(s.length <= 12, `slice too long: ${JSON.stringify(s)}`);
+  }
+  const words = new Set(text.split(" "));
+  for (const s of slices) {
+    for (const w of s.split(/\s+/).filter(Boolean)) assert.ok(words.has(w), `cut word: ${w}`);
+  }
+});
+
+test("splitter hardSplit:'word' falls back to a character cut only for a word longer than the limit", () => {
+  const slices = [...splitter("aa bbbbbbbbbb cc", 4, "word")];
+  assert.strictEqual(slices.join(""), "aa bbbbbbbbbb cc");
+  for (const s of slices) assert.ok(s.length <= 5);
+});
+
+test("splitter default mode is unchanged (character cut)", () => {
+  assert.deepStrictEqual([...splitter("abc def ghi", 5)], ["abc d", "ef gh", "i"]);
+});

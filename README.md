@@ -190,6 +190,7 @@ Creates a semantic chunker.
     - `split` (Number): Force a split after this many characters. Optional.
     - `splitMode` (String): `"sentence"` (default), `"paragraph"`, or `"markdown"`.
     - `overlap` (Number): Number of trailing segments from the previous chunk to prepend to the next. Default: `0`.
+    - `hardSplit` (`"char"` | `"word"`): how `split` / an unsplittable oversized segment is cut. `"word"` breaks at whitespace and never cuts mid-word (except a single word longer than the limit). Default `"char"`.
     - `maxChunkSize` (Number): Maximum chunk length in characters; oversized chunks are split at their weakest interior point. `0` (default) disables.
     - `minChunkSize` (Number): Minimum chunk length in characters; undersized chunks are merged into their most-similar neighbor. `0` (default) disables.
 - Returns: (AsyncGenerator): Yields `[chunk, embedding]` pairs.

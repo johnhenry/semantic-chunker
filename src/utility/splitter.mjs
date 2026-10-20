@@ -25,16 +25,36 @@ const safeSplitBoundary = (text, end) =>
     : end;
 
 /**
- * Splits text into fixed-size character slices. Never splits a UTF-16
- * surrogate pair (see `safeSplitBoundary`); slices adjacent to an
- * astral-plane character may therefore be one code unit longer or shorter
- * than `split`.
+ * Splits text into slices of at most `split` characters (give or take one
+ * code unit next to an astral-plane character). Never splits a UTF-16
+ * surrogate pair (see `safeSplitBoundary`).
+ *
+ * `mode` "char" (default) cuts at fixed offsets. `mode` "word" instead
+ * breaks after the last whitespace inside the window so no word is cut;
+ * only a single word longer than `split` is still cut by character, since
+ * the limit cannot otherwise be honored. Slices always reassemble to the
+ * original text.
  *
  * @param {string} text
  * @param {number} [split=2**8] - Maximum slice length in characters.
+ * @param {"char" | "word"} [mode="char"] - How to choose the cut point.
  * @returns {Generator<string, void, unknown>}
  */
-export const splitter = function* (text, split = 2 ** 8) {
+export const splitter = function* (text, split = 2 ** 8, mode = "char") {
+  if (mode === "word") {
+    let start = 0;
+    while (start < text.length) {
+      let end = Math.min(start + split, text.length);
+      if (end < text.length && !/\s/.test(text[end])) {
+        let i = end - 1;
+        while (i > start && !/\s/.test(text[i])) i--;
+        end = i > start ? i + 1 : safeSplitBoundary(text, end);
+      }
+      yield text.slice(start, end);
+      start = end;
+    }
+    return;
+  }
   let start = 0;
   let end = safeSplitBoundary(text, Math.min(split, text.length));
   while (start < text.length) {

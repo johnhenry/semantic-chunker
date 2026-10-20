@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.3 -- `hardSplit: "word"` (2026-10-20)
+
+### Added
+
+- **`hardSplit` option** (`"char"` default, or `"word"`) on `semantic`, `sentence` and `full`. With `"word"`, `split` and the `maxChunkSize` fallback break at whitespace instead of mid-word; only a single word longer than the limit is still cut. Additive, default unchanged. Closes #17.
+
 ## 0.0.2 -- `embed/xenova` forwards pipeline options (2026-09-26)
 
 ### Added

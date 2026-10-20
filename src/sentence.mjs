@@ -15,18 +15,20 @@ import { nullEmbed } from "./utility/null-embed.mjs";
  * @param {EmbedFunction} [options.embed=nullEmbed]
  * @param {number} [options.split=0] - Maximum segment length in characters; longer segments are hard-split (0 disables).
  * @param {SplitMode} [options.splitMode="sentence"] - How to segment the text.
+ * @param {"char" | "word"} [options.hardSplit="char"] - "word" breaks hard splits at whitespace.
  * @returns {Chunker}
  */
 export const createSentenceChunker = ({
   embed = nullEmbed,
   split = 0,
   splitMode = "sentence",
+  hardSplit = "char",
 } = {}) => {
   return async function* (/** @type {string} */ text) {
     const segments = segment(text, splitMode);
     if (split) {
       for (const item of segments) {
-        for await (const chunk of splitter(item, split)) {
+        for await (const chunk of splitter(item, split, hardSplit)) {
           yield [chunk, await embed(chunk)];
         }
       }
